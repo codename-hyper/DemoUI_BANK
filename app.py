@@ -165,6 +165,38 @@ def predict_LA():
     else:
         return render_template('LA_home.html')
 
+@app.route('/predict_LR',methods=['GET','POST'])
+@cross_origin()
+def predict_LR():
+    if request.method == 'POST':
+        LoanAmount = float(request.form.get("LoanAmount",False))
+        Loan_Amount_Term = float(request.form.get("Loan_Amount_Term",False))
+        Interest_Rate = float(request.form.get("Interest_Rate",False))
+        Employment_Years = float(request.form.get("Employment_Years",False))
+        Annual_Income = float(request.form.get("Annual_Income",False))
+        Debt_to_Income = float(request.form.get("Debt_to_Income",False))
+        Delinquent_2yr = float(request.form.get("Delinquent_2yr",False))
+        Revolving_Cr_Util = float(request.form.get("Revolving_Cr_Util",False))
+        Longest_Credit_Length = float(request.form.get("Longest_Credit_Length",False))
+        Home_Ownership = request.form.get("Home_Ownership",False)
+        if Home_Ownership == 'RENT':
+            Home_Ownership = 5
+        elif Home_Ownership == 'OWN':
+            Home_Ownership = 4
+        elif Home_Ownership == 'MORTGAGE':
+            Home_Ownership = 1
+        elif Home_Ownership == 'OTHER':
+            Home_Ownership = 3
+        elif Home_Ownership == 'NONE':
+            Home_Ownership = 2
+        elif Home_Ownership == 'ANY':
+            Home_Ownership = 0
+        Verification_Status = float(request.form.get("Verification_Status",False))
+
+        Loan_Purpose = float(request.form.get("Loan_Purpose",False))
+
+        State = float(request.form.get("State",False))
+
 if __name__ == '__main__':
     # To run on web ..
     #app.run(host='0.0.0.0',port=8080)

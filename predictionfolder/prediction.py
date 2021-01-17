@@ -102,7 +102,8 @@ class LR_predict:
         set3 = instance2.imputer(set2)
         set4 = instance2.drop_col(set3)
 
-        final_data = set1[['RowID']]
+        #final_data = data['RowID']
+        #final_data = pd.DataFrame()
 
         lr_model = pickle.load(open('pickle_files/loan_risk.pkl','rb'))
 
@@ -110,8 +111,9 @@ class LR_predict:
 
         set4['output'] = result
         set4['output'] = np.where(set4['output'] == 0,"Risky","Safe")
-        final_data['Output']=set4['output']
-        return final_data
+        #final_data['Output']=set4['output']
+        final_data = {'RowID':[i for i in data['RowID']],'Output':[i for i in set4['output']]}
+        return pd.DataFrame(final_data)
 
 
 
