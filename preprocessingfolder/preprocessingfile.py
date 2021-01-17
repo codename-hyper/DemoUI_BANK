@@ -4,6 +4,7 @@ from sklearn import preprocessing
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelEncoder
 from fancyimpute import KNN, IterativeImputer
+from sqlalchemy import column
 
 class preprocess:
 
@@ -100,6 +101,9 @@ class LR_preprocess:
          'Revolving_Cr_Util', 'Total_Accounts', 'Bad_Loan','Longest_Credit_Length']
         
         return data
+
+    def drop_col(self,data):
+        return data.drop(columns=['RowID','Bad_Loan'])
 
     def feature_engg(self,data):
         data['Term']= data['Term'].str.extract('(\d+)',expand=False)

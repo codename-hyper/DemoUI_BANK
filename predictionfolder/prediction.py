@@ -96,20 +96,21 @@ class LR_predict:
 
         instance2 = preprocessingfile.LR_preprocess()
 
-        set0 = instance2.initialize_columns(data)
-        set1 = instance2.feature_engg(set0)
+        #set0 = instance2.initialize_columns(data)
+        set1 = instance2.feature_engg(data)
         set2 = instance2.outlier_removal(set1)
         set3 = instance2.imputer(set2)
+        set4 = instance2.drop_col(set3)
 
         final_data = set1[['RowID']]
 
-        lr_model = pickle.load(open('loan_risk.pickle','rb'))
+        lr_model = pickle.load(open('pickle_files/loan_risk.pkl','rb'))
 
-        result = lr_model.predict(set3)
+        result = lr_model.predict(set4)
 
-        set3['output'] = result
-        set3['output'] = np.where(set3['output'] == 0,"Risky","Safe")
-        final_data['Output']=set3['output']
+        set4['output'] = result
+        set4['output'] = np.where(set4['output'] == 0,"Risky","Safe")
+        final_data['Output']=set4['output']
         return final_data
 
 

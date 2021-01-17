@@ -4,7 +4,7 @@ import pickle
 import warnings
 import joblib
 from flask_cors import CORS, cross_origin
-from predictionfolder.prediction import LA_predict,predict,Fraud_predict
+from predictionfolder.prediction import LA_predict,predict,Fraud_predict,LR_predict
 
 def warns(*args, **kwargs):
     pass
@@ -25,6 +25,7 @@ model_Fraud = joblib.load('pickle_files/Fraud_new_model.pkl')
 instance = predict()
 LA_instance = LA_predict()
 Fraud_instance = Fraud_predict()
+LR_instance = LR_predict()
 app = Flask(__name__)
 
 @app.route('/')
@@ -43,6 +44,12 @@ def LA():
 def FD():
     if request.method == 'POST':
         return render_template('FD_new_home.html')
+
+@app.route('/LR',methods=['GET','POST'])
+@cross_origin()
+def LR():
+    if request.method == 'POST':
+        return render_template('loan_risk.html')
 
 @app.route('/bulk_predict',methods=['GET','POST'])
 @cross_origin()
@@ -74,6 +81,23 @@ def LA_bulk_predict():
 
         if file and allowed_file(file.filename):
             data = LA_instance.predictor(file)
+            return render_template('result_bulk.html', tables=[data.to_html(classes='data')], titles=data.columns.values)
+        else:
+            return redirect(request.url)
+
+@app.route('/LR_bulk_predict',methods=['GET','POST'])
+@cross_origin()
+def LR_bulk_predict():
+    if request.method == "POST":
+        if 'file' not in request.files:
+            return redirect(request.url)
+        file = request.files['file']
+
+        if file.filename == '':
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            data = LR_instance.predictor(file)
             return render_template('result_bulk.html', tables=[data.to_html(classes='data')], titles=data.columns.values)
         else:
             return redirect(request.url)
