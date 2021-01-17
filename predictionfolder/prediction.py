@@ -85,6 +85,32 @@ class LA_predict():
         final_data['Output']=new_data['output']
         return final_data
 
+# ===================================================================================================
+class LR_predict:
+    def __init__(self):
+        pass
+
+    def predictor(self, file):
+        instance1 = data_ingestion.data_getter()
+        data = instance1.data_load(file)
+
+        instance2 = preprocessingfile.LR_preprocess()
+
+        set0 = instance2.initialize_columns(data)
+        set1 = instance2.feature_engg(set0)
+        set2 = instance2.outlier_removal(set1)
+        set3 = instance2.imputer(set2)
+
+        final_data = set1[['RowID']]
+
+        lr_model = pickle.load(open('loan_risk.pickle','rb'))
+
+        result = lr_model.predict(set3)
+
+        set3['output'] = result
+        set3['output'] = np.where(set3['output'] == 0,"Risky","Safe")
+        final_data['Output']=set3['output']
+        return final_data
 
 
 
