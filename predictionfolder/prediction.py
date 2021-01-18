@@ -96,11 +96,13 @@ class LR_predict:
 
         instance2 = preprocessingfile.LR_preprocess()
 
-        #set0 = instance2.initialize_columns(data)
-        set1 = instance2.feature_engg(data)
-        set2 = instance2.outlier_removal(set1)
-        set3 = instance2.imputer(set2)
-        set4 = instance2.drop_col(set3)
+        data = instance2.drop_col_trial(data)
+        set0 = instance2.initialize_columns(data)
+        set1 = instance2.drop_col(set0)
+        set2 = instance2.feature_engg(set1)
+        set3 = instance2.outlier_removal(set2)
+        set4 = instance2.imputer(set3)
+        #set4 = instance2.drop_col(set3)
 
         #final_data = data['RowID']
         #final_data = pd.DataFrame()
@@ -112,7 +114,7 @@ class LR_predict:
         set4['output'] = result
         set4['output'] = np.where(set4['output'] == 0,"Risky","Safe")
         #final_data['Output']=set4['output']
-        final_data = {'RowID':[i for i in data['RowID']],'Output':[i for i in set4['output']]}
+        final_data = {'RowID':[i for i in set0['RowID']],'Output':[i for i in set4['output']]}
         return pd.DataFrame(final_data)
 
 

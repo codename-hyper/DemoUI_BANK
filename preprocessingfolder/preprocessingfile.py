@@ -96,20 +96,26 @@ class LA_preprocess:
 #=======================================================================================
 class LR_preprocess:
     def initialize_columns(self, data):
-        data.columns = ['Loan_Amount', 'Term', 'Interest_Rate', 'Employment_Years','Home_Ownership',
+        data.columns = ['RowID','Loan_Amount', 'Term', 'Interest_Rate', 'Employment_Years','Home_Ownership',
          'Annual_Income', 'Verification_Status','Loan_Purpose', 'State', 'Debt_to_Income', 'Delinquent_2yr',
-         'Revolving_Cr_Util', 'Total_Accounts', 'Bad_Loan','Longest_Credit_Length']
+         'Revolving_Cr_Util', 'Total_Accounts','Longest_Credit_Length']
         
         return data
 
     def drop_col(self,data):
-        return data.drop(columns=['RowID','Bad_Loan'])
+        return data.drop(columns=['RowID'])
+
+    def drop_col_trial(self,data):
+        try:
+            return data.drop(columns=['Bad_Loan'])
+        except:
+            pass
 
     def feature_engg(self,data):
         data['Term']= data['Term'].str.extract('(\d+)',expand=False)
         data['Term'] = pd.to_numeric(data['Term'])
 
-        cols = ['Home_Ownership','Verification_Status','Loan_Purpose','State','Bad_Loan']
+        cols = ['Home_Ownership','Verification_Status','Loan_Purpose','State']
         data[cols]=data[cols].fillna(data.mode().iloc[0])
 
         le = LabelEncoder()
