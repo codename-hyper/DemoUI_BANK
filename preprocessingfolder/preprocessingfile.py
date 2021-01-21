@@ -3,7 +3,8 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelEncoder
-from fancyimpute import KNN, IterativeImputer
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer, KNNImputer
 from sqlalchemy import column
 
 class preprocess:
