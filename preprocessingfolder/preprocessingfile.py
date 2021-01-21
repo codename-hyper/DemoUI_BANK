@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 from sklearn import preprocessing
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder
+from fancyimpute import KNN, IterativeImputer
+from sqlalchemy import column
 
 class preprocess:
 
@@ -90,5 +93,57 @@ class LA_preprocess:
                               "Education_Not Graduate", "Self_Employed_Yes"], axis=1)
         return new_data
 
+#=======================================================================================
+class LR_preprocess:
+    def initialize_columns(self, data):
+        data.columns = ['RowID','Loan_Amount', 'Term', 'Interest_Rate', 'Employment_Years','Home_Ownership',
+         'Annual_Income', 'Verification_Status','Loan_Purpose', 'State', 'Debt_to_Income', 'Delinquent_2yr',
+         'Revolving_Cr_Util', 'Total_Accounts','Longest_Credit_Length']
+        
+        return data
+
+    def drop_col(self,data):
+        return data.drop(columns=['RowID'])
+
+    def drop_col_trial(self,data):
+        try:
+            return data.drop(columns=['Bad_Loan'])
+        except:
+            pass
+
+    def feature_engg(self,data):
+        data['Term']= data['Term'].str.extract('(\d+)',expand=False)
+        data['Term'] = pd.to_numeric(data['Term'])
+
+        cols = ['Home_Ownership','Verification_Status','Loan_Purpose','State']
+        data[cols]=data[cols].fillna(data.mode().iloc[0])
+
+        le = LabelEncoder()
+        data[cols]=data[cols].apply(le.fit_transform)
+
+        return data
+
+    def outlier_removal(self,data):
+        def outlier_limits(col):
+            Q3, Q1 = np.nanpercentile(col, [75,25])
+            IQR= Q3-Q1
+            UL= Q3+1.5*IQR
+            LL= Q1-1.5*IQR
+            return UL, LL
+
+        for column in data.columns:
+            if data[column].dtype != 'int64':
+                UL, LL= outlier_limits(data[column])
+                data[column]= np.where((data[column] > UL) | (data[column] < LL), np.nan, data[column])
+
+        return data
+
+    def imputer(self,data):
+        df_mice = data.copy()
+
+        mice= IterativeImputer(random_state=101)
+        df_mice.iloc[:,:]= mice.fit_transform(df_mice)
+
+        return df_mice
 
 
