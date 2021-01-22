@@ -117,6 +117,32 @@ class LR_predict:
         final_data = {'RowID':[i for i in set0['RowID']],'Output':[i for i in set4['output']]}
         return pd.DataFrame(final_data)
 
+# ===============================================================================================
+class LE_predict:
+    def __init__(self):
+        pass
+    
+    def predictor(self, file):
+        instance1 = data_ingestion.data_getter()
+        data = instance1.data_load(file)
+
+        instance2 = preprocessingfile.LE_preprocess()
+
+        data_1 = instance2.initialize_columns(data)
+        data_final = instance2.col_change(data_1)
+
+        le_model = pickle.load(open('pickle_files/XGBTunedModel-LE.pkl','rb'))
+
+        result = le_model.predict(data_final)
+
+        data_final['output'] = result
+        data_final['output'] = np.where(data_final['output'] == 0,"Not Eligible","Eligible")
+
+        data_final['RowID'] = pd.Series([i for i in range(len(data_final['output']))])
+
+        final_data = {'RowID':[i for i in data_final['RowID']],'Output':[i for i in data_final['output']]}
+        return pd.DataFrame(final_data)
+
 
 
 

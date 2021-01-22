@@ -4,7 +4,7 @@ import pickle
 import warnings
 import joblib
 from flask_cors import CORS, cross_origin
-from predictionfolder.prediction import LA_predict,predict,Fraud_predict,LR_predict
+from predictionfolder.prediction import LA_predict,predict,Fraud_predict,LR_predict, LE_predict
 
 def warns(*args, **kwargs):
     pass
@@ -22,11 +22,13 @@ ss_LA = pickle.load(open('pickle_files/veena_LA_stan_scaler.pkl', 'rb'))
 model_LA=pickle.load(open('pickle_files/LAOpt8model.sav', 'rb'))
 model_Fraud = joblib.load('pickle_files/Fraud_new_model.pkl')
 model_LR = pickle.load(open('pickle_files/loan_risk.pkl', 'rb'))
+model_LE = pickle.load(open('pickle_files/XGBTunedModel-LE.pkl', 'rb'))
 
 instance = predict()
 LA_instance = LA_predict()
 Fraud_instance = Fraud_predict()
 LR_instance = LR_predict()
+LE_instance = LE_predict()
 app = Flask(__name__)
 
 @app.route('/')
@@ -51,6 +53,12 @@ def FD():
 def LR():
     if request.method == 'POST':
         return render_template('loan_risk.html')
+
+@app.route('/LE',methods=['GET','POST'])
+@cross_origin()
+def LE():
+    if request.method == 'POST':
+        return render_template('loan_eligibility.html')
 
 @app.route('/bulk_predict',methods=['GET','POST'])
 @cross_origin()
@@ -86,7 +94,7 @@ def LA_bulk_predict():
         else:
             return redirect(request.url)
 
-@app.route('/LR_bulk_predict',methods=['GET','POST'])
+@app.route('/LE_bulk_predict',methods=['GET','POST'])
 @cross_origin()
 def LR_bulk_predict():
     if request.method == "POST":
@@ -98,7 +106,7 @@ def LR_bulk_predict():
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            data = LR_instance.predictor(file)
+            data = LE_instance.predictor(file)
             return render_template('result_bulk.html', tables=[data.to_html(classes='data')], titles=data.columns.values)
         else:
             return redirect(request.url)
@@ -165,6 +173,36 @@ def predict_LA():
         return render_template('LA_result.html', prediction=LA_prediction)
     else:
         return render_template('LA_home.html')
+
+@app.route('/predict_LE',methods=['GET','POST'])
+@cross_origin()
+def predict_LE():
+    if request.method == 'POST':
+
+        CurrentLoanAmount = float(request.form.get("CurrentLoanAmount",False))
+        CreditScore = float(request.form.get("CreditScore",False))
+        AnnualIncome = float(request.form.get("AnnualIncome",False))
+        Yearsincurrentjob = float(request.form.get("Yearsincurrentjob",False))
+        MonthlyDebt = float(request.form.get("MonthlyDebt",False))
+        YearsofCreditHistory = float(request.form.get("YearsofCreditHistory",False))
+        Monthssincelastdelinquent = float(request.form.get("Monthssincelastdelinquent",False))
+        NumberofOpenAccounts = float(request.form.get("NumberofOpenAccounts",False))
+        NumberofCreditProblems = float(request.form.get("NumberofCreditProblems",False))
+        CurrentCreditBalance = float(request.form.get("CurrentCreditBalance",False))
+        MaximumOpenCredit = float(request.form.get("MaximumOpenCredit",False))
+        Term_LongTerm = float(request.form.get("Term_LongTerm",False))
+
+        LE_prediction = model_LE.predict([
+            [CurrentLoanAmount, CreditScore, AnnualIncome,
+       Yearsincurrentjob, MonthlyDebt, YearsofCreditHistory,
+       Monthssincelastdelinquent, NumberofOpenAccounts,
+       NumberofCreditProblems, CurrentCreditBalance,
+       MaximumOpenCredit, Term_LongTerm]
+        ])
+
+        return render_template('LE_result.html', prediction=LE_prediction)
+    else:
+        return render_template('LE_home.html')
 
 @app.route('/predict_LR',methods=['GET','POST'])
 @cross_origin()

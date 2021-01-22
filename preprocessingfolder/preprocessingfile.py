@@ -147,4 +147,24 @@ class LR_preprocess:
 
         return df_mice
 
+#===============================================================================================================================================
+class LE_preprocess:
+    def initialize_columns(self, data):
+        data.columns = ['Current Loan Amount', 'Credit Score', 'Annual Income',
+        'Years in current job', 'Monthly Debt', 'Years of Credit History',
+        'Months since last delinquent', 'Number of Open Accounts',
+        'Number of Credit Problems', 'Current Credit Balance',
+        'Maximum Open Credit', 'Term_Long Term']
+        return data
 
+    def col_change(self, data):
+        for i in data.columns:
+            cols = []
+            strings = ''
+            for j in i.split(' '):
+                strings += j
+            cols.append(strings)
+
+        for i,j in zip(data.columns,cols):
+            data[i] = cols[j]
+        return cols
